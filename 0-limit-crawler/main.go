@@ -15,7 +15,12 @@ import (
 	"time"
 )
 
-var mu sync.Mutex
+// My First Solution - 1
+// var mu sync.Mutex
+
+// Second Solution - 1 
+const rateLimit = 1 * time.Second
+var throttle = time.Tick(rateLimit)
 
 // Crawl uses `fetcher` from the `mockfetcher.go` file to imitate a
 // real crawler. It crawls until the maximum depth has reached.
@@ -26,12 +31,15 @@ func Crawl(url string, depth int, wg *sync.WaitGroup) {
 		return
 	}
 
-	mu.Lock()
-	go func() {
-		time.Sleep(1 * time.Second)
-		mu.Unlock()
-	}()
+	// My First Solution - 2
+	// mu.Lock()
+	// go func() {
+	// 	time.Sleep(1 * time.Second)
+	// 	mu.Unlock()
+	// }()
 
+	// Second Solution - 2
+	<-throttle
 	body, urls, err := fetcher.Fetch(url)
 	if err != nil {
 		fmt.Println(err)
