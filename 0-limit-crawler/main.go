@@ -12,7 +12,10 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
+
+var mu sync.Mutex
 
 // Crawl uses `fetcher` from the `mockfetcher.go` file to imitate a
 // real crawler. It crawls until the maximum depth has reached.
@@ -22,6 +25,12 @@ func Crawl(url string, depth int, wg *sync.WaitGroup) {
 	if depth <= 0 {
 		return
 	}
+
+	mu.Lock()
+	go func() {
+		time.Sleep(1 * time.Second)
+		mu.Unlock()
+	}()
 
 	body, urls, err := fetcher.Fetch(url)
 	if err != nil {
