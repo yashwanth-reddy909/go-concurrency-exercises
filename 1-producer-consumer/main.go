@@ -13,14 +13,15 @@ import (
 	"time"
 )
 
-func producer(stream Stream) (tweets []*Tweet) {
+func producer(stream Stream, ch chan *Tweet, quit chan bool) {
+	defer close(quit)
 	for {
 		tweet, err := stream.Next()
 		if err == ErrEOF {
-			return tweets
+			return
 		}
 
-		tweets = append(tweets, tweet)
+		ch <- tweet
 	}
 }
 
@@ -38,11 +39,22 @@ func main() {
 	start := time.Now()
 	stream := GetMockStream()
 
+	ch := make(chan *Tweet, 10)
+	quit := make(chan bool)
+
 	// Producer
-	tweets := producer(stream)
+	go producer(stream, ch, quit)
 
 	// Consumer
-	consumer(tweets)
+	loop:
+		for {
+			select {
+			case t := <-ch:
+				consumer([]*Tweet{t})
+			case <-quit:
+				break loop
+			}
+		}
 
 	fmt.Printf("Process took %s\n", time.Since(start))
 }
