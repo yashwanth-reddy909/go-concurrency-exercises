@@ -13,10 +13,28 @@
 
 package main
 
+import (
+	"os"
+	"os/signal"
+)
+
 func main() {
 	// Create a process
 	proc := MockProcess{}
+	
+	// channel listen on the give signal SIGINT
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
 
 	// Run the process (blocking)
-	proc.Run()
+	go proc.Run()
+
+	// on first interpution 
+	// close the channel no more listening needed
+	// before that make sure to signal.Stop 
+	// cause it will try to send to a channel c that been closed
+	<-c
+	signal.Stop(c)
+	close(c)
+	proc.Stop()
 }

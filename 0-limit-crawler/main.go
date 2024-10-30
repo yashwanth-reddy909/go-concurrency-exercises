@@ -15,10 +15,10 @@ import (
 	"time"
 )
 
-// My First Solution - 1
+// First Solution - PART 1
 // var mu sync.Mutex
 
-// Second Solution - 1 
+// Second Solution - PART 1 
 const rateLimit = 1 * time.Second
 var throttle = time.Tick(rateLimit)
 
@@ -31,14 +31,14 @@ func Crawl(url string, depth int, wg *sync.WaitGroup) {
 		return
 	}
 
-	// My First Solution - 2
+	// First Solution - PART 2
 	// mu.Lock()
 	// go func() {
 	// 	time.Sleep(1 * time.Second)
 	// 	mu.Unlock()
 	// }()
 
-	// Second Solution - 2
+	// Second Solution - PART 2
 	<-throttle
 	body, urls, err := fetcher.Fetch(url)
 	if err != nil {
